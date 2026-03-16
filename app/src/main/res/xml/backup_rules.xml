@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Sample backup rules file; it will be referenced by
+   android:fullBackupContent attribute in AndroidManifest.xml
+-->
+<full-backup-content>
+    <include domain="file" path="."/>
+    <include domain="database" path="."/>
+    <include domain="sharedpref" path="."/>
+</full-backup-content>

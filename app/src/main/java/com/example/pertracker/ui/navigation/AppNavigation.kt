@@ -1,0 +1,87 @@
+package com.example.pertracker.ui.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.pertracker.ui.budget.BudgetScreen
+import com.example.pertracker.ui.budget.BudgetViewModel
+import com.example.pertracker.ui.category.CategoryScreen
+import com.example.pertracker.ui.category.CategoryViewModel
+import com.example.pertracker.ui.dashboard.DashboardScreen
+import com.example.pertracker.ui.dashboard.DashboardViewModel
+import com.example.pertracker.ui.settings.SettingsScreen
+import com.example.pertracker.ui.settings.SettingsViewModel
+import com.example.pertracker.ui.transaction.TransactionInputScreen
+import com.example.pertracker.ui.transaction.TransactionViewModel
+import org.koin.androidx.compose.koinViewModel
+
+sealed class Screen(val route: String) {
+    object Dashboard : Screen("dashboard")
+    object Categories : Screen("categories")
+    object Budgets : Screen("budgets")
+    object AddTransaction : Screen("add_transaction")
+    object Settings : Screen("settings")
+}
+
+@Composable
+fun AppNavigation(
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController()
+) {
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Dashboard.route,
+        modifier = modifier
+    ) {
+        // --- Dashboard / Home ---
+        composable(Screen.Dashboard.route) {
+            val viewModel: DashboardViewModel = koinViewModel()
+            DashboardScreen(
+                viewModel = viewModel,
+                onNavigateToAddTransaction = { navController.navigate(Screen.AddTransaction.route) },
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
+                onNavigateToCategories = { navController.navigate(Screen.Categories.route) },
+                onNavigateToBudgets = { navController.navigate(Screen.Budgets.route) }
+            )
+        }
+
+        // --- Categories ---
+        composable(Screen.Categories.route) {
+            val viewModel: CategoryViewModel = koinViewModel()
+            CategoryScreen(
+                viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // --- Budgets ---
+        composable(Screen.Budgets.route) {
+            val viewModel: BudgetViewModel = koinViewModel()
+            BudgetScreen(
+                viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // --- Add Transaction ---
+        composable(Screen.AddTransaction.route) {
+            val viewModel: TransactionViewModel = koinViewModel()
+            TransactionInputScreen(
+                viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // --- Settings ---
+        composable(Screen.Settings.route) {
+            val viewModel: SettingsViewModel = koinViewModel()
+            SettingsScreen(
+                viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+    }
+}
