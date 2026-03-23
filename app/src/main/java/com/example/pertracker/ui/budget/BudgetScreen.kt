@@ -15,7 +15,7 @@ import com.example.pertracker.data.model.Budget
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BudgetScreen(viewModel: BudgetViewModel, onNavigateBack: () -> Unit) {
+fun BudgetScreen(viewModel: BudgetViewModel, _onNavigateBack: () -> Unit) {
     val budgets by viewModel.budgets.collectAsState()
     val categories by viewModel.categories.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
