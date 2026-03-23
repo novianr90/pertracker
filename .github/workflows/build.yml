@@ -26,8 +26,14 @@ jobs:
       with:
         gradle-version: '8.4'
 
-    - name: Build with Gradle
-      run: gradle assembleDebug
+    - name: Run Android Lint Check
+      run: gradlew lintDebug
+
+    - name: Run Unit Tests
+      run: gradlew testDebugUnitTest
+
+    - name: Build Debug APK
+      run: gradlew assembleDebug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
