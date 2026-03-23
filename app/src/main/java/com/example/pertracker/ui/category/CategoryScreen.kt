@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.example.pertracker.data.model.Category
 import com.example.pertracker.data.model.CategoryType
 
+@Suppress("UNUSED_PARAMETER")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryScreen(
