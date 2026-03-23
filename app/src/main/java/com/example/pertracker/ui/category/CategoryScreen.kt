@@ -18,7 +18,7 @@ import com.example.pertracker.data.model.CategoryType
 @Composable
 fun CategoryScreen(
     viewModel: CategoryViewModel,
-    onNavigateBack: () -> Unit
+    _onNavigateBack: () -> Unit
 ) {
     val categories by viewModel.categories.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
