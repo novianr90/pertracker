@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel, onNavigateBack: () -> Unit) {
+fun SettingsScreen(viewModel: SettingsViewModel, _onNavigateBack: () -> Unit) {
     val autoSyncEnabled by viewModel.isAutoSyncEnabled.collectAsState()
     val unsyncedTxs by viewModel.unsyncedTransactions.collectAsState()
 
