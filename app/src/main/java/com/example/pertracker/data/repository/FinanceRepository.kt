@@ -11,6 +11,8 @@ import com.example.pertracker.data.model.Budget
 import com.example.pertracker.data.model.Category
 import com.example.pertracker.data.model.Goal
 import com.example.pertracker.data.model.TransactionEntity
+import com.example.pertracker.data.network.SyncTransactionRequest
+import com.example.pertracker.data.network.TransactionPayload
 import com.example.pertracker.data.network.WebhookService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -174,10 +176,24 @@ class FinanceRepository(
      */
     private suspend fun syncTransactionIfEnabled(transaction: TransactionEntity) {
         val autoSync = settingsDataStore.isAutoSyncEnabled.first()
-        if (autoSync) {
+        val syncUrl = settingsDataStore.syncUrl.first()
+        val apiKey = settingsDataStore.apiKey.first()
+        
+        if (autoSync && syncUrl.isNotBlank()) {
             try {
-                val response = webhookService.syncTransaction(transaction)
-                if (response.isSuccessful) {
+                val category = categoryDao.getCategoryById(transaction.categoryId)
+                val txPayload = TransactionPayload(
+                    id = transaction.transactionId,
+                    category = category?.name ?: "Unknown",
+                    remarks = transaction.remarks,
+                    nominal = transaction.amount
+                )
+                val requestPayload = SyncTransactionRequest(
+                    apiKey = apiKey,
+                    transactions = listOf(txPayload)
+                )
+                val response = webhookService.syncTransaction(syncUrl, requestPayload)
+                if (response.isSuccessful && response.body()?.status == "success") {
                     transactionDao.updateTransaction(transaction.copy(isSynced = true))
                 }
             } catch (e: Exception) {
@@ -193,9 +209,27 @@ class FinanceRepository(
         val unsynced = transactionDao.getUnsyncedTransactions()
         if (unsynced.isEmpty()) return
         
+        val syncUrl = settingsDataStore.syncUrl.first()
+        val apiKey = settingsDataStore.apiKey.first()
+        
+        if (syncUrl.isBlank()) return // Cannot sync without URL
+        
         try {
-            val response = webhookService.syncTransactionsBulk(unsynced)
-            if (response.isSuccessful) {
+            val transactionsPayload = unsynced.map { tx ->
+                val category = categoryDao.getCategoryById(tx.categoryId)
+                TransactionPayload(
+                    id = tx.transactionId,
+                    category = category?.name ?: "Unknown",
+                    remarks = tx.remarks,
+                    nominal = tx.amount
+                )
+            }
+            val requestPayload = SyncTransactionRequest(
+                apiKey = apiKey,
+                transactions = transactionsPayload
+            )
+            val response = webhookService.syncTransactionsBulk(syncUrl, requestPayload)
+            if (response.isSuccessful && response.body()?.status == "success") {
                 // Jika berhasil, update semua flag isSynced menjadi true
                 appDatabase.withTransaction {
                     for (tx in unsynced) {

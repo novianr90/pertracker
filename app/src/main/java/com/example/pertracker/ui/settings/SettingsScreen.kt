@@ -13,6 +13,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel, onNavigateBack: () -> Unit) {
     val autoSyncEnabled by viewModel.isAutoSyncEnabled.collectAsState()
+    val syncUrl by viewModel.syncUrl.collectAsState()
+    val apiKey by viewModel.apiKey.collectAsState()
     val unsyncedTxs by viewModel.unsyncedTransactions.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -34,6 +36,29 @@ fun SettingsScreen(viewModel: SettingsViewModel, onNavigateBack: () -> Unit) {
                     onCheckedChange = { viewModel.setAutoSync(it) }
                 )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Divider()
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("Webhook Configuration", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            OutlinedTextField(
+                value = syncUrl,
+                onValueChange = { viewModel.setSyncUrl(it) },
+                label = { Text("POST Sync Transaction URL") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = apiKey,
+                onValueChange = { viewModel.setApiKey(it) },
+                label = { Text("API Key") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
             Divider()

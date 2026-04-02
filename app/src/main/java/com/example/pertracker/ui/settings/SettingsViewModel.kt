@@ -18,6 +18,12 @@ class SettingsViewModel(
     val isAutoSyncEnabled: StateFlow<Boolean> = settingsDataStore.isAutoSyncEnabled
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    val syncUrl: StateFlow<String> = settingsDataStore.syncUrl
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+
+    val apiKey: StateFlow<String> = settingsDataStore.apiKey
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+
     private val _unsyncedTransactions = MutableStateFlow<List<TransactionEntity>>(emptyList())
     val unsyncedTransactions: StateFlow<List<TransactionEntity>> = _unsyncedTransactions
 
@@ -34,6 +40,18 @@ class SettingsViewModel(
     fun setAutoSync(enabled: Boolean) {
         viewModelScope.launch {
             settingsDataStore.setAutoSyncEnabled(enabled)
+        }
+    }
+
+    fun setSyncUrl(url: String) {
+        viewModelScope.launch {
+            settingsDataStore.setSyncUrl(url)
+        }
+    }
+
+    fun setApiKey(key: String) {
+        viewModelScope.launch {
+            settingsDataStore.setApiKey(key)
         }
     }
 

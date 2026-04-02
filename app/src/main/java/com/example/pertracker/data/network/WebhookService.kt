@@ -1,14 +1,20 @@
 package com.example.pertracker.data.network
 
-import com.example.pertracker.data.model.TransactionEntity
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.Url
 
 interface WebhookService {
-    @POST("webhook/transactions")
-    suspend fun syncTransaction(@Body transaction: TransactionEntity): Response<Unit>
+    @POST
+    suspend fun syncTransaction(
+        @Url url: String,
+        @Body request: SyncTransactionRequest
+    ): Response<SyncResponse>
 
-    @POST("webhook/transactions/bulk")
-    suspend fun syncTransactionsBulk(@Body transactions: List<TransactionEntity>): Response<Unit>
+    @POST
+    suspend fun syncTransactionsBulk(
+        @Url url: String,
+        @Body request: SyncTransactionRequest
+    ): Response<SyncResponse>
 }
