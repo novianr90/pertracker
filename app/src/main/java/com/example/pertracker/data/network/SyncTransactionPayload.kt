@@ -11,5 +11,6 @@ data class TransactionPayload(
     val id: Long,
     val category: String,
     val remarks: String,
-    val nominal: Double
+    val nominal: Double,
+    val goalId: Long? = null
 )

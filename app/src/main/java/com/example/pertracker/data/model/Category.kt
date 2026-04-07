@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 enum class CategoryType {
-    INCOME, EXPENSE
+    INCOME, EXPENSE, TRANSFER_GOAL
 }
 
 @Entity(tableName = "categories")
