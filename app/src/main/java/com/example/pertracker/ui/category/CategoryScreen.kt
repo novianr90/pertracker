@@ -75,18 +75,28 @@ fun CategoryScreen(
                             onValueChange = { categoryName = it },
                             label = { Text("Name") }
                         )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = selectedType == CategoryType.EXPENSE,
-                                onClick = { selectedType = CategoryType.EXPENSE }
-                            )
-                            Text("Expense")
-                            Spacer(modifier = Modifier.width(8.dp))
-                            RadioButton(
-                                selected = selectedType == CategoryType.INCOME,
-                                onClick = { selectedType = CategoryType.INCOME }
-                            )
-                            Text("Income")
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(
+                                    selected = selectedType == CategoryType.EXPENSE,
+                                    onClick = { selectedType = CategoryType.EXPENSE }
+                                )
+                                Text("Expense")
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(
+                                    selected = selectedType == CategoryType.INCOME,
+                                    onClick = { selectedType = CategoryType.INCOME }
+                                )
+                                Text("Income")
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(
+                                    selected = selectedType == CategoryType.TRANSFER_GOAL,
+                                    onClick = { selectedType = CategoryType.TRANSFER_GOAL }
+                                )
+                                Text("Goal Transfer")
+                            }
                         }
                     }
                 },
