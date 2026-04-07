@@ -68,6 +68,14 @@ class FinanceRepository(
 
     // --- Goal Operations ---
     fun getAllGoals(): Flow<List<Goal>> = goalDao.getAllGoals()
+    
+    suspend fun insertGoal(goal: Goal) {
+        goalDao.insertGoal(goal)
+    }
+    
+    suspend fun deleteGoal(goal: Goal) {
+        goalDao.deleteGoal(goal)
+    }
 
     suspend fun insertGoal(goal: Goal) {
         goalDao.insertGoal(goal)

@@ -53,7 +53,7 @@ class DashboardViewModel(private val repository: FinanceRepository) : ViewModel(
             for (tx in txs) {
                 val type = categoryMap[tx.categoryId]?.type
                 if (type == CategoryType.INCOME) income += tx.amount
-                else if (type == CategoryType.EXPENSE) expense += tx.amount
+                else if (type == CategoryType.EXPENSE || type == CategoryType.TRANSFER_GOAL) expense += tx.amount
             }
             MonthlySummary(period.first, period.second, expense, income)
         }.sortedWith(compareByDescending<MonthlySummary> { it.year }.thenByDescending { it.month })
@@ -82,7 +82,7 @@ class DashboardViewModel(private val repository: FinanceRepository) : ViewModel(
                 
                 if (type == CategoryType.INCOME) {
                     totalIncome += tx.amount
-                } else if (type == CategoryType.EXPENSE) {
+                } else if (type == CategoryType.EXPENSE || type == CategoryType.TRANSFER_GOAL) {
                     totalExpense += tx.amount
                     pieDataMap[name] = (pieDataMap[name] ?: 0f) + tx.amount.toFloat()
                 }

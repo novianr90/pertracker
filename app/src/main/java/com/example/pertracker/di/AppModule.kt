@@ -67,4 +67,5 @@ val appModule = module {
     viewModel { TransactionViewModel(get()) }
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { com.example.pertracker.ui.portfolio.PortfolioViewModel(get()) }
+    viewModel { com.example.pertracker.ui.goal.GoalViewModel(get()) }
 }
