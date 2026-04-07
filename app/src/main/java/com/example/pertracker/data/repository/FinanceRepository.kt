@@ -194,7 +194,7 @@ class FinanceRepository(
                     transactions = listOf(txPayload)
                 )
                 val response = webhookService.syncTransaction(syncUrl, requestPayload)
-                if (response.isSuccessful && response.body()?.status == "success") {
+                return if (response.isSuccessful && response.body()?.status == "success") {
                     transactionDao.updateTransaction(transaction.copy(isSynced = true))
                     true
                 } else {
