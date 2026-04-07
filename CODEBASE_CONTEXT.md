@@ -43,6 +43,7 @@ Organized by feature. Each package contains the Compose UI (`Screen`) and its co
 2.  **Offline-first Syncing (Outbox)**: Transactions initially save with `isSynced = false`. The repository handles syncing them to the webhook (either manually in batch or automatically on saving).
 3.  **Dependency Injection**: Koin passes `FinanceRepository` into all ViewModels. Do not instantiate the repository manually.
 4.  **Flows & State**: The DAOs return `Flow` types. The Repository exposes these flows to the ViewModel, which in turn converts them to `StateFlow` for Compose to observe reactively.
+5.  **UI State Handling During Sync**: When transactions are auto-syncing (via `FinanceRepository.insertTransaction` which suspends and returns a sync result), the Compose UI must track a local submission state (e.g., `isSubmitting`) to disable action buttons. This prevents double-clicks and perceived UI freezes. A `Snackbar` handles the result asynchronously, while ensuring transactions save smoothly offline (`isSynced = false`) on network failure or flag successfully (`isSynced = true`) on completion.
 
 ## 🌊 Typical User Flow
 
