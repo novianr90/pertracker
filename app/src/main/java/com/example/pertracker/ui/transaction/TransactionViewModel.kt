@@ -14,10 +14,10 @@ class TransactionViewModel(private val repository: FinanceRepository) : ViewMode
     val categories: StateFlow<List<Category>> = repository.getAllCategories()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun saveTransaction(transaction: TransactionEntity, onSuccess: () -> Unit) {
+    fun saveTransaction(transaction: TransactionEntity, onResult: (Boolean?) -> Unit) {
         viewModelScope.launch {
-            repository.insertTransaction(transaction)
-            onSuccess()
+            val syncResult = repository.insertTransaction(transaction)
+            onResult(syncResult)
         }
     }
 }
