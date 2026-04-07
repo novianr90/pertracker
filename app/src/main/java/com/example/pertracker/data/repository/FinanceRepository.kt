@@ -91,7 +91,7 @@ class FinanceRepository(
      * Inserts a transaction and updates the corresponding budget.
      * Also handles auto-sync logic if enabled.
      */
-    suspend fun insertTransaction(transaction: TransactionEntity) {
+    suspend fun insertTransaction(transaction: TransactionEntity): Boolean? {
         var finalTransaction: TransactionEntity? = null
         appDatabase.withTransaction {
             val (month, year) = getMonthAndYear(transaction.transactionDate)
@@ -103,12 +103,13 @@ class FinanceRepository(
                 budgetDao.updateBudget(updatedBudget)
             }
 
-            // Insert Transaction
-            val id = transactionDao.insertTransaction(transaction)
-            finalTransaction = transaction.copy(transactionId = id)
+            // Insert Transaction (ensure it starts unsynced)
+            val txToSave = transaction.copy(isSynced = false)
+            val id = transactionDao.insertTransaction(txToSave)
+            finalTransaction = txToSave.copy(transactionId = id)
         }
 
-        finalTransaction?.let { tx ->
+        return finalTransaction?.let { tx ->
             syncTransactionIfEnabled(tx)
         }
     }
@@ -174,7 +175,7 @@ class FinanceRepository(
     /**
      * Syncs a single transaction to the webhook.
      */
-    private suspend fun syncTransactionIfEnabled(transaction: TransactionEntity) {
+    private suspend fun syncTransactionIfEnabled(transaction: TransactionEntity): Boolean? {
         val autoSync = settingsDataStore.isAutoSyncEnabled.first()
         val syncUrl = settingsDataStore.syncUrl.first()
         val apiKey = settingsDataStore.apiKey.first()
@@ -193,13 +194,19 @@ class FinanceRepository(
                     transactions = listOf(txPayload)
                 )
                 val response = webhookService.syncTransaction(syncUrl, requestPayload)
-                if (response.isSuccessful && response.body()?.status == "success") {
+                return if (response.isSuccessful && response.body()?.status == "success") {
                     transactionDao.updateTransaction(transaction.copy(isSynced = true))
+                    true
+                } else {
+                    transactionDao.updateTransaction(transaction.copy(isSynced = false))
+                    false
                 }
             } catch (e: Exception) {
-                // Network failed or other error, it remains unsynced
+                transactionDao.updateTransaction(transaction.copy(isSynced = false))
+                return false
             }
         }
+        return null
     }
 
     /**

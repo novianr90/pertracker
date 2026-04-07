@@ -11,6 +11,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.pertracker.data.model.TransactionEntity
 import java.util.Calendar
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,9 +23,12 @@ fun TransactionInputScreen(viewModel: TransactionViewModel, onNavigateBack: () -
     var remarks by remember { mutableStateOf("") }
     var dateInMillis by remember { mutableStateOf(System.currentTimeMillis()) }
     var expanded by remember { mutableStateOf(false) }
+    var isSubmitting by remember { mutableStateOf(false) }
     
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     val datePickerDialog = DatePickerDialog(
         context,
@@ -40,7 +44,8 @@ fun TransactionInputScreen(viewModel: TransactionViewModel, onNavigateBack: () -
     )
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Add Transaction") }) }
+        topBar = { TopAppBar(title = { Text("Add Transaction") }) },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -101,22 +106,32 @@ fun TransactionInputScreen(viewModel: TransactionViewModel, onNavigateBack: () -
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
+                enabled = !isSubmitting,
                 onClick = {
                     val parsedAmount = amount.toDoubleOrNull()
                     if (selectedCategoryId != null && parsedAmount != null) {
+                        isSubmitting = true
                         val tx = TransactionEntity(
                             categoryId = selectedCategoryId!!,
                             amount = parsedAmount,
                             transactionDate = dateInMillis,
                             remarks = remarks
                         )
-                        viewModel.saveTransaction(tx) {
-                            onNavigateBack()
+                        viewModel.saveTransaction(tx) { syncResult ->
+                            coroutineScope.launch {
+                                isSubmitting = false
+                                if (syncResult == true) {
+                                    snackbarHostState.showSnackbar("Sync Transaction Success")
+                                } else if (syncResult == false) {
+                                    snackbarHostState.showSnackbar("Sync Failed. Check sheets")
+                                }
+                                onNavigateBack()
+                            }
                         }
                     }
                 }
             ) {
-                Text("Save Transaction")
+                Text(if (isSubmitting) "Saving..." else "Save Transaction")
             }
         }
     }
