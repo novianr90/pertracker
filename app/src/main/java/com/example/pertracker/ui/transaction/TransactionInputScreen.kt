@@ -3,6 +3,8 @@ package com.example.pertracker.ui.transaction
 import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -47,7 +49,16 @@ fun TransactionInputScreen(viewModel: TransactionViewModel, onNavigateBack: () -
     )
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Add Transaction") }) },
+        topBar = { 
+            TopAppBar(
+                title = { Text("Add Transaction") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            ) 
+        },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(
