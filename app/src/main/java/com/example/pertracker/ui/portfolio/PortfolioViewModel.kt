@@ -26,4 +26,16 @@ class PortfolioViewModel(private val repository: FinanceRepository) : ViewModel(
     fun toggleSyariahFilter() {
         isSyariahOnly.value = !isSyariahOnly.value
     }
+
+    fun saveAsset(asset: AssetEntity) {
+        viewModelScope.launch {
+            repository.insertAsset(asset)
+        }
+    }
+
+    fun deleteAsset(asset: AssetEntity) {
+        viewModelScope.launch {
+            repository.deleteAsset(asset)
+        }
+    }
 }

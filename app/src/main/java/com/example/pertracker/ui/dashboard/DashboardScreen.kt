@@ -31,7 +31,8 @@ fun DashboardScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToCategories: () -> Unit,
     onNavigateToBudgets: () -> Unit,
-    onNavigateToGoals: () -> Unit
+    onNavigateToGoals: () -> Unit,
+    onNavigateToPortfolio: () -> Unit
 ) {
     val goals by viewModel.goals.collectAsState()
     val summaries by viewModel.monthlySummary.collectAsState()
@@ -85,37 +86,28 @@ fun DashboardScreen(
 
             // 2. 4 Buttons CardView
             item {
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    DashboardActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = "Category",
-                        onClick = onNavigateToCategories
-                    )
-                    DashboardActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = "Budget",
-                        onClick = onNavigateToBudgets
-                    )
-                    DashboardActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = "Goals",
-                        onClick = onNavigateToGoals
-                    )
-                    DashboardActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = "Logs",
-                        onClick = { /* Navigate to Transactions List later */ }
-                    )
-                    DashboardActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = "Config",
-                        onClick = onNavigateToSettings
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Category", onClick = onNavigateToCategories)
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Budget", onClick = onNavigateToBudgets)
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Goals", onClick = onNavigateToGoals)
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Logs", onClick = { /* Navigate to Transactions List later */ })
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Portfolio", onClick = onNavigateToPortfolio)
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Config", onClick = onNavigateToSettings)
+                    }
                 }
             }
 

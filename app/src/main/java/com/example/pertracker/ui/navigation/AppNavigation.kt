@@ -25,6 +25,7 @@ sealed class Screen(val route: String) {
     object AddTransaction : Screen("add_transaction")
     object Settings : Screen("settings")
     object Goals : Screen("goals")
+    object Portfolio : Screen("portfolio")
 }
 
 @Composable
@@ -46,7 +47,8 @@ fun AppNavigation(
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
                 onNavigateToCategories = { navController.navigate(Screen.Categories.route) },
                 onNavigateToBudgets = { navController.navigate(Screen.Budgets.route) },
-                onNavigateToGoals = { navController.navigate(Screen.Goals.route) }
+                onNavigateToGoals = { navController.navigate(Screen.Goals.route) },
+                onNavigateToPortfolio = { navController.navigate(Screen.Portfolio.route) }
             )
         }
 
@@ -90,6 +92,15 @@ fun AppNavigation(
         composable(Screen.Goals.route) {
             val viewModel: com.example.pertracker.ui.goal.GoalViewModel = koinViewModel()
             com.example.pertracker.ui.goal.GoalScreen(
+                viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // --- Portfolio ---
+        composable(Screen.Portfolio.route) {
+            val viewModel: com.example.pertracker.ui.portfolio.PortfolioViewModel = koinViewModel()
+            com.example.pertracker.ui.portfolio.PortfolioScreen(
                 viewModel = viewModel,
                 onNavigateBack = { navController.popBackStack() }
             )
