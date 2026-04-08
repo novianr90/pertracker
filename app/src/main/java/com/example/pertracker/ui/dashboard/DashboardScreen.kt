@@ -30,7 +30,9 @@ fun DashboardScreen(
     onNavigateToAddTransaction: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToCategories: () -> Unit,
-    onNavigateToBudgets: () -> Unit
+    onNavigateToBudgets: () -> Unit,
+    onNavigateToGoals: () -> Unit,
+    onNavigateToPortfolio: () -> Unit
 ) {
     val goals by viewModel.goals.collectAsState()
     val summaries by viewModel.monthlySummary.collectAsState()
@@ -84,32 +86,28 @@ fun DashboardScreen(
 
             // 2. 4 Buttons CardView
             item {
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    DashboardActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = "Category",
-                        onClick = onNavigateToCategories
-                    )
-                    DashboardActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = "Budget",
-                        onClick = onNavigateToBudgets
-                    )
-                    DashboardActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = "Logs",
-                        onClick = { /* Navigate to Transactions List later */ }
-                    )
-                    DashboardActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = "Config",
-                        onClick = onNavigateToSettings
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Category", onClick = onNavigateToCategories)
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Budget", onClick = onNavigateToBudgets)
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Goals", onClick = onNavigateToGoals)
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Logs", onClick = { /* Navigate to Transactions List later */ })
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Portfolio", onClick = onNavigateToPortfolio)
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Config", onClick = onNavigateToSettings)
+                    }
                 }
             }
 
@@ -237,16 +235,31 @@ fun DashboardScreen(
                 Text("Financial Goals", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 16.dp))
             }
             items(goals) { goal ->
-                Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(goal.title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                            if (goal.isShariaCompliant) {
-                                Badge(containerColor = Color(0xFF4CAF50)) { Text("Halal") }
-                            }
+                val percentage = if (goal.targetAmount > 0) (goal.currentAmount / goal.targetAmount) * 100 else 0.0
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(goal.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = String.format(Locale.getDefault(), "Rp %,.0f / Rp %,.0f", goal.currentAmount, goal.targetAmount),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-                        Text("Target: ${goal.targetAmount}")
-                        Text("Current: ${goal.currentAmount}")
+                        Text(
+                            text = String.format(Locale.getDefault(), "%.1f%%", percentage),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.ExtraBold
+                        )
                     }
                 }
             }

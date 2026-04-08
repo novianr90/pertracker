@@ -41,6 +41,7 @@ val appModule = module {
     single { get<AppDatabase>().transactionDao() }
     single { get<AppDatabase>().budgetDao() }
     single { get<AppDatabase>().goalDao() }
+    single { get<AppDatabase>().assetDao() }
 
     // DataStore
     single { SettingsDataStore(androidContext()) }
@@ -54,7 +55,8 @@ val appModule = module {
             budgetDao = get(),
             goalDao = get(),
             settingsDataStore = get(),
-            webhookService = get()
+            webhookService = get(),
+            assetDao = get()
         )
     }
 
@@ -64,4 +66,6 @@ val appModule = module {
     viewModel { BudgetViewModel(get()) }
     viewModel { TransactionViewModel(get()) }
     viewModel { SettingsViewModel(get(), get()) }
+    viewModel { com.example.pertracker.ui.portfolio.PortfolioViewModel(get()) }
+    viewModel { com.example.pertracker.ui.goal.GoalViewModel(get()) }
 }

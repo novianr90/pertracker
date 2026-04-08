@@ -25,7 +25,8 @@ class FinanceRepository(
     private val budgetDao: BudgetDao,
     private val goalDao: GoalDao,
     private val settingsDataStore: SettingsDataStore,
-    private val webhookService: WebhookService
+    private val webhookService: WebhookService,
+    private val assetDao: com.example.pertracker.data.dao.AssetDao
 ) {
 
     // --- Category Operations ---
@@ -101,6 +102,11 @@ class FinanceRepository(
             if (budget != null) {
                 val updatedBudget = budget.copy(currentAmount = budget.currentAmount + transaction.amount)
                 budgetDao.updateBudget(updatedBudget)
+            }
+
+            // Update Goal Progress if this is a goal allocation
+            transaction.goalId?.let { gid ->
+                goalDao.updateGoalProgress(gid, transaction.amount)
             }
 
             // Insert Transaction (ensure it starts unsynced)
@@ -187,7 +193,8 @@ class FinanceRepository(
                     id = transaction.transactionId,
                     category = category?.name ?: "Unknown",
                     remarks = transaction.remarks,
-                    nominal = transaction.amount
+                    nominal = transaction.amount,
+                    goalId = transaction.goalId
                 )
                 val requestPayload = SyncTransactionRequest(
                     apiKey = apiKey,
@@ -228,7 +235,8 @@ class FinanceRepository(
                     id = tx.transactionId,
                     category = category?.name ?: "Unknown",
                     remarks = tx.remarks,
-                    nominal = tx.amount
+                    nominal = tx.amount,
+                    goalId = tx.goalId
                 )
             }
             val requestPayload = SyncTransactionRequest(
@@ -256,4 +264,33 @@ class FinanceRepository(
         val year = calendar.get(Calendar.YEAR)
         return Pair(month, year)
     }
+
+    // --- Asset Operations ---
+    fun getAllAssets(): Flow<List<com.example.pertracker.data.model.AssetEntity>> = assetDao.getAllAssets()
+
+    fun getSyariahAssets(): Flow<List<com.example.pertracker.data.model.AssetEntity>> = assetDao.getSyariahAssets()
+
+    fun getTotalNetWorth(): Flow<Double?> = assetDao.getTotalNetWorth()
+
+    suspend fun insertAsset(asset: com.example.pertracker.data.model.AssetEntity) {
+        assetDao.insertAsset(asset)
+    }
+
+    suspend fun updateAsset(asset: com.example.pertracker.data.model.AssetEntity) {
+        assetDao.updateAsset(asset)
+    }
+
+    suspend fun deleteAsset(asset: com.example.pertracker.data.model.AssetEntity) {
+        assetDao.deleteAsset(asset)
+    }
+}
+
+// --- Asset Extensions ---
+fun com.example.pertracker.data.model.AssetEntity.getUnrealizedProfitAmount(): Double {
+    return (currentMarketPrice - averageBuyPrice) * totalUnits
+}
+
+fun com.example.pertracker.data.model.AssetEntity.getUnrealizedProfitPercentage(): Double {
+    if (averageBuyPrice == 0.0) return 0.0
+    return ((currentMarketPrice - averageBuyPrice) / averageBuyPrice) * 100
 }

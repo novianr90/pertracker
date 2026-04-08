@@ -3,7 +3,7 @@
 This document serves as an overview of the PerTracker app. Use this context to understand the app's architecture, feature set, and database patterns.
 
 ## 🎯 App Overview
-PerTracker is an offline-first Android application for managing personal finances. It tracks categories, budgets, transactions, and financial goals. A key feature is its "Outbox Pattern" synchronization, which allows the user to record transactions offline and sync them to an external webhook when desired.
+PerTracker is an offline-first Android application for managing personal finances. It tracks categories, budgets, transactions, financial goals, and asset wealth portfolios. A key feature is its "Outbox Pattern" synchronization, which allows the user to record transactions offline and sync them to an external webhook when desired.
 
 ## 🛠️ Technology Stack
 * **Language:** Kotlin
@@ -18,8 +18,8 @@ PerTracker is an offline-first Android application for managing personal finance
 
 ### 1. `data/`
 Contains everything related to data handling and external storage.
-*   **`model/`**: Room Entities (`Budget`, `Category`, `Goal`, `TransactionEntity`).
-*   **`dao/`**: Room Data Access Objects (`BudgetDao`, `CategoryDao`, `GoalDao`, `TransactionDao`).
+*   **`model/`**: Room Entities (`Budget`, `Category`, `Goal`, `TransactionEntity`, `AssetEntity`).
+*   **`dao/`**: Room Data Access Objects (`BudgetDao`, `CategoryDao`, `GoalDao`, `TransactionDao`, `AssetDao`).
 *   **`db/`**: `AppDatabase` (ties all DAOs and Entities together).
 *   **`datastore/`**: `SettingsDataStore` (Preferences like Auto-Sync, API Key, Webhook URL).
 *   **`network/`**: `WebhookService`, defining network payloads (`TransactionPayload`, `SyncTransactionRequest`).
@@ -31,9 +31,10 @@ Contains everything related to data handling and external storage.
 ### 3. `ui/`
 Organized by feature. Each package contains the Compose UI (`Screen`) and its corresponding `ViewModel`.
 *   **`dashboard/`**: Aggregates data, displays monthly budget usage, recent transactions, and goal progress.
-*   **`transaction/`**: Handles transaction entry and listing.
+*   **`transaction/`**: Handles transaction entry and listing (supports dynamic Goal Funding dropdowns).
 *   **`budget/`**: Manages budget limits per category (Month/Year).
-*   **`category/`**: Core master data management (creating income/expense categories).
+*   **`category/`**: Core master data management (creating income/expense/transfer categories).
+*   **`portfolio/`**: Investment & Wealth tracker showing Net Worth and Unrealized P/L per asset (with Syariah filters).
 *   **`settings/`**: Controls UI for User Preferences (API keys, Sync behavior, Outbox manual sync triggers).
 *   **`navigation/`**: Centralized compose navigation setup linking all screens.
 
@@ -44,6 +45,8 @@ Organized by feature. Each package contains the Compose UI (`Screen`) and its co
 3.  **Dependency Injection**: Koin passes `FinanceRepository` into all ViewModels. Do not instantiate the repository manually.
 4.  **Flows & State**: The DAOs return `Flow` types. The Repository exposes these flows to the ViewModel, which in turn converts them to `StateFlow` for Compose to observe reactively.
 5.  **UI State Handling During Sync**: When transactions are auto-syncing (via `FinanceRepository.insertTransaction` which suspends and returns a sync result), the Compose UI must track a local submission state (e.g., `isSubmitting`) to disable action buttons. This prevents double-clicks and perceived UI freezes. A `Snackbar` handles the result asynchronously, while ensuring transactions save smoothly offline (`isSynced = false`) on network failure or flag successfully (`isSynced = true`) on completion.
+6.  **Dynamic Goal Funding**: When a transaction is categorized as `TRANSFER_GOAL`, `FinanceRepository` natively intercepts this to atomically update the `Goal.currentAmount` securely within a Room `withTransaction` block.
+7.  **Wealth & Portfolio Logic**: The app supports tracking unrealized Profit & Loss. To uphold Clean Architecture, calculation logics like `getUnrealizedProfitAmount()` live as extension functions on `AssetEntity`, enabling native `Flow` transformations.
 
 ## 🌊 Typical User Flow
 

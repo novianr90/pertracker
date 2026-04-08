@@ -24,5 +24,6 @@ data class TransactionEntity(
     val amount: Double,
     val transactionDate: Long,
     val remarks: String,
-    val isSynced: Boolean = false
+    val isSynced: Boolean = false,
+    val goalId: Long? = null
 )

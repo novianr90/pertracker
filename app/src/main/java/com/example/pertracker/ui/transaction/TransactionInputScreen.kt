@@ -17,13 +17,16 @@ import kotlinx.coroutines.launch
 @Composable
 fun TransactionInputScreen(viewModel: TransactionViewModel, onNavigateBack: () -> Unit) {
     val categories by viewModel.categories.collectAsState()
+    val goals by viewModel.goals.collectAsState()
     
     var selectedCategoryId by remember { mutableStateOf<Long?>(null) }
+    var selectedGoalId by remember { mutableStateOf<Long?>(null) }
     var amount by remember { mutableStateOf("") }
     var remarks by remember { mutableStateOf("") }
     var dateInMillis by remember { mutableStateOf(System.currentTimeMillis()) }
     var expanded by remember { mutableStateOf(false) }
     var isSubmitting by remember { mutableStateOf(false) }
+    var expandedGoal by remember { mutableStateOf(false) }
     
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
@@ -82,6 +85,38 @@ fun TransactionInputScreen(viewModel: TransactionViewModel, onNavigateBack: () -
                 }
             }
 
+            val selectedCategory = categories.find { it.categoryId == selectedCategoryId }
+
+            if (selectedCategory?.type == com.example.pertracker.data.model.CategoryType.TRANSFER_GOAL) {
+                ExposedDropdownMenuBox(
+                    expanded = expandedGoal,
+                    onExpandedChange = { expandedGoal = !expandedGoal }
+                ) {
+                    OutlinedTextField(
+                        value = goals.find { it.goalId == selectedGoalId }?.title ?: "Select Goal",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Goal") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedGoal) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandedGoal,
+                        onDismissRequest = { expandedGoal = false }
+                    ) {
+                        goals.forEach { goal ->
+                            DropdownMenuItem(
+                                text = { Text(goal.title) },
+                                onClick = {
+                                    selectedGoalId = goal.goalId
+                                    expandedGoal = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
             OutlinedTextField(
                 value = amount,
                 onValueChange = { amount = it },
@@ -115,7 +150,8 @@ fun TransactionInputScreen(viewModel: TransactionViewModel, onNavigateBack: () -
                             categoryId = selectedCategoryId!!,
                             amount = parsedAmount,
                             transactionDate = dateInMillis,
-                            remarks = remarks
+                            remarks = remarks,
+                            goalId = if (selectedCategory?.type == com.example.pertracker.data.model.CategoryType.TRANSFER_GOAL) selectedGoalId else null
                         )
                         viewModel.saveTransaction(tx) { syncResult ->
                             coroutineScope.launch {

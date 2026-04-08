@@ -14,6 +14,9 @@ class TransactionViewModel(private val repository: FinanceRepository) : ViewMode
     val categories: StateFlow<List<Category>> = repository.getAllCategories()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val goals: StateFlow<List<com.example.pertracker.data.model.Goal>> = repository.getAllGoals()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     fun saveTransaction(transaction: TransactionEntity, onResult: (Boolean?) -> Unit) {
         viewModelScope.launch {
             val syncResult = repository.insertTransaction(transaction)

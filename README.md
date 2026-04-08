@@ -1,13 +1,15 @@
 # Personal Finance Tracker (PerTracker) 💰
 
-An offline-first Android application designed to help you track personal finances with ease. This application emphasizes robust local data management (Budgeting, Transactions, Goals) while supporting background synchronization to an external webhook.
+An offline-first Android application designed to help you track personal finances and wealth with ease. This application emphasizes robust local data management (Budgeting, Transactions, Goals, Asset Portfolios) while supporting background synchronization to an external webhook.
 
 ## 🌟 Key Features
 
 * **Offline-First Architecture**: Completely functional without an internet connection using a local Room (SQLite) database.
-* **Master Data Management**: Set up custom Income and Expense categories.
+* **Master Data Management**: Set up custom Income, Expense, and Goal Transfer categories.
 * **Smart Budgeting**: Set monthly budgets per category. The app automatically denormalizes and updates your `currentAmount` in real-time as you enter transactions!
-* **Financial Goals**: Track progress towards specific financial goals. Includes specialized visual indicators for Sharia-compliant (Halal) goals.
+* **Dynamic Goal Funding**: Allocate transactions directly to active goals, seamlessly updating goal progress securely.
+* **Asset & Net Worth Tracking**: Build your wealth portfolio (Stocks, Mutual Funds, Sukuk). View real-time Total Net Worth and individual Unrealized Profit/Loss calculations, complete with a Syariah-compliant assets filter toggle.
+* **Financial Goals**: Track overall progress towards specific financial goals. Includes specialized visual indicators for Sharia-compliant (Halal) goals.
 * **Aggregated Dashboard**: View a breakdown of your finances grouped dynamically by month and year.
 * **Outbox Pattern Synchronization**: A seamless background sync queue. Transactions made offline are held locally and can be synced in bulk to a webhook endpoint whenever the network is available, via the Settings screen.
 

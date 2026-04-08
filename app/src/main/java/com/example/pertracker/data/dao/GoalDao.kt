@@ -22,4 +22,7 @@ interface GoalDao {
 
     @Delete
     suspend fun deleteGoal(goal: Goal)
+
+    @Query("UPDATE goals SET currentAmount = currentAmount + :amount WHERE goalId = :goalId")
+    suspend fun updateGoalProgress(goalId: Long, amount: Double)
 }
