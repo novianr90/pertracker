@@ -1,24 +1,37 @@
 package com.example.pertracker.ui.dashboard
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.pertracker.ui.theme.ChartColors
+import com.example.pertracker.ui.theme.IncomeGreen
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -43,114 +56,165 @@ fun DashboardScreen(
     val todayStr = SimpleDateFormat("EEEE, dd MMM yyyy", Locale.getDefault()).format(Date())
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Dashboard") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Overview", fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
+            )
+        },
         floatingActionButton = {
-            FloatingActionButton(onClick = onNavigateToAddTransaction) {
-                Icon(Icons.Filled.Add, contentDescription = "Add")
+            FloatingActionButton(
+                onClick = onNavigateToAddTransaction,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shape = CircleShape
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add Transaction")
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 80.dp)
+            contentPadding = PaddingValues(bottom = 88.dp)
         ) {
             // 1. Date Today & Today Transactions
             item {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .shadow(4.dp, RoundedCornerShape(16.dp)),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Today, $todayStr", style = MaterialTheme.typography.titleMedium)
-                        Spacer(modifier = Modifier.height(8.dp))
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Text(
+                            text = "Today, $todayStr",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column {
-                                Text("Income", style = MaterialTheme.typography.bodyMedium)
-                                Text("+${todaySummary.totalIncome}", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                                Text(
+                                    "Income", 
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    "+ Rp ${todaySummary.totalIncome}", 
+                                    color = IncomeGreen, 
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
                             }
                             Column(horizontalAlignment = Alignment.End) {
-                                Text("Expense", style = MaterialTheme.typography.bodyMedium)
-                                Text("-${todaySummary.totalExpense}", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                                Text(
+                                    "Expense", 
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    "- Rp ${todaySummary.totalExpense}", 
+                                    color = MaterialTheme.colorScheme.error, 
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
                             }
                         }
                     }
                 }
             }
 
-            // 2. 4 Buttons CardView
+            // 2. Action Buttons Options Grid
             item {
+                Spacer(modifier = Modifier.height(16.dp))
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Category", onClick = onNavigateToCategories)
-                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Budget", onClick = onNavigateToBudgets)
-                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Goals", onClick = onNavigateToGoals)
+                        DashboardActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Category, title = "Category", onClick = onNavigateToCategories)
+                        DashboardActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.AccountBalanceWallet, title = "Budget", onClick = onNavigateToBudgets)
+                        DashboardActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Flag, title = "Goals", onClick = onNavigateToGoals)
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Logs", onClick = onNavigateToLogs)
-                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Portfolio", onClick = onNavigateToPortfolio)
-                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Config", onClick = onNavigateToSettings)
+                        DashboardActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.List, title = "Logs", onClick = onNavigateToLogs)
+                        DashboardActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.PieChart, title = "Portfolio", onClick = onNavigateToPortfolio)
+                        DashboardActionButton(modifier = Modifier.weight(1f), icon = Icons.Filled.Settings, title = "Config", onClick = onNavigateToSettings)
                     }
                 }
             }
 
-            // 4. Mini Charts (Pie Chart)
+            // 3. Mini Charts (Pie Chart)
             item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Today's Expenses",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+                Spacer(modifier = Modifier.height(24.dp))
+                SectionHeader("Today's Expenses")
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(12.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .shadow(2.dp, RoundedCornerShape(16.dp)),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Row(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(20.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         PieChart(
                             data = todaySummary.pieData,
                             modifier = Modifier
-                                .size(100.dp)
+                                .size(110.dp)
                                 .padding(8.dp)
                         )
-                        Spacer(modifier = Modifier.width(16.dp))
+                        Spacer(modifier = Modifier.width(20.dp))
                         Column {
                             if (todaySummary.pieData.isEmpty()) {
-                                Text("No expenses today.", style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    "No expenses today.", 
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             } else {
-                                val colors = listOf(Color(0xFFE57373), Color(0xFF81C784), Color(0xFF64B5F6), Color(0xFFFFD54F), Color(0xFFBA68C8))
                                 todaySummary.pieData.forEachIndexed { index, pieData ->
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Box(modifier = Modifier.size(12.dp).padding(2.dp)) {
-                                            Canvas(modifier = Modifier.matchParentSize()) {
-                                                drawCircle(color = colors[index % colors.size])
-                                            }
-                                        }
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text("${pieData.categoryName}: ${pieData.amount}", style = MaterialTheme.typography.bodySmall)
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(12.dp)
+                                                .clip(CircleShape)
+                                                .background(ChartColors[index % ChartColors.size])
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            "${pieData.categoryName}: ${pieData.amount}", 
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
                                     }
                                 }
                             }
@@ -159,49 +223,59 @@ fun DashboardScreen(
                 }
             }
 
-            // 5. 3 Top Latest Transactions
+            // 4. Top Latest Transactions
             item {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Recent Transactions",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+                Spacer(modifier = Modifier.height(24.dp))
+                SectionHeader("Recent Transactions")
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(12.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .shadow(2.dp, RoundedCornerShape(16.dp)),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                    Column(modifier = Modifier.padding(0.dp)) {
                         if (topRecent.isEmpty()) {
-                            Text("No recent transactions", style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                "No recent transactions", 
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(20.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         } else {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("Remarks", fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                                Text("Category", fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                                Text("Amount", fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), textAlign = TextAlign.End)
-                            }
-                            Divider()
-                            topRecent.forEach { item ->
+                            topRecent.forEachIndexed { index, item ->
                                 val tx = item.transaction
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { }
+                                        .padding(horizontal = 20.dp, vertical = 16.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(tx.remarks, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                                    Text(item.categoryName, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            tx.remarks, 
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            item.categoryName, 
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                     Text(
-                                        text = tx.amount.toString(),
-                                        modifier = Modifier.weight(1f),
+                                        text = if (tx.amount >= 0) "+ Rp ${tx.amount}" else "- Rp ${-tx.amount}",
                                         textAlign = TextAlign.End,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = if (tx.amount > 0) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (tx.amount >= 0) IncomeGreen else MaterialTheme.colorScheme.error
                                     )
+                                }
+                                if (index < topRecent.size - 1) {
+                                    Divider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 1.dp)
                                 }
                             }
                         }
@@ -211,20 +285,40 @@ fun DashboardScreen(
 
             // Monthly Summary
             item {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Aggregated Summary", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+                SectionHeader("Aggregated Summary")
             }
             items(summaries) { summary ->
-                Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
                     Row(
-                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Month ${summary.month}/${summary.year}", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            "Month ${summary.month}/${summary.year}", 
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
                         Column(horizontalAlignment = Alignment.End) {
-                            Text("Income: +${summary.totalIncome}", color = Color(0xFF2E7D32))
-                            Text("Expense: -${summary.totalExpense}", color = MaterialTheme.colorScheme.error)
+                            Text(
+                                "Income: +Rp ${summary.totalIncome}", 
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = IncomeGreen
+                            )
+                            Text(
+                                "Expense: -Rp ${summary.totalExpense}", 
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
                         }
                     }
                 }
@@ -232,22 +326,31 @@ fun DashboardScreen(
 
             // Financial Goals
             item {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Financial Goals", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+                SectionHeader("Financial Goals")
             }
             items(goals) { goal ->
                 val percentage = if (goal.targetAmount > 0) (goal.currentAmount / goal.targetAmount) * 100 else 0.0
                 Card(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(goal.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text(
+                                goal.title, 
+                                style = MaterialTheme.typography.titleMedium, 
+                                fontWeight = FontWeight.Bold
+                            )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = String.format(Locale.getDefault(), "Rp %,.0f / Rp %,.0f", goal.currentAmount, goal.targetAmount),
@@ -273,25 +376,47 @@ fun DashboardScreen(
 }
 
 @Composable
+fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onBackground,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+}
+
+@Composable
 fun DashboardActionButton(
     modifier: Modifier = Modifier,
+    icon: ImageVector,
     title: String,
     onClick: () -> Unit
 ) {
     Card(
         modifier = modifier
             .aspectRatio(1f)
+            .clip(RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Box(
+        Column(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
+            verticalArrangement = Arrangement.Center
         ) {
+            Icon(
+                imageVector = icon, 
+                contentDescription = title,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
             )
         }
@@ -302,7 +427,7 @@ fun DashboardActionButton(
 fun PieChart(
     data: List<PieData>,
     modifier: Modifier = Modifier,
-    colors: List<Color> = listOf(Color(0xFFE57373), Color(0xFF81C784), Color(0xFF64B5F6), Color(0xFFFFD54F), Color(0xFFBA68C8))
+    colors: List<Color> = ChartColors
 ) {
     if (data.isEmpty()) {
         Canvas(modifier = modifier) {
