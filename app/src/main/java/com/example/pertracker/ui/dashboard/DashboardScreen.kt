@@ -403,7 +403,7 @@ fun DashboardActionButton(
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Icon(

@@ -31,6 +31,7 @@ fun TransactionInputScreen(viewModel: TransactionViewModel, onNavigateBack: () -
     val goals by viewModel.goals.collectAsState()
     
     var selectedCategoryId by remember { mutableStateOf<Long?>(null) }
+    val selectedCategory = categories.find { it.categoryId == selectedCategoryId }
     var selectedGoalId by remember { mutableStateOf<Long?>(null) }
     var amount by remember { mutableStateOf("") }
     var remarks by remember { mutableStateOf("") }
@@ -121,8 +122,6 @@ fun TransactionInputScreen(viewModel: TransactionViewModel, onNavigateBack: () -
                             }
                         }
                     }
-
-                    val selectedCategory = categories.find { it.categoryId == selectedCategoryId }
 
                     if (selectedCategory?.type == com.example.pertracker.data.model.CategoryType.TRANSFER_GOAL) {
                         ExposedDropdownMenuBox(
