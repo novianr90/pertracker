@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.util.Calendar
 
@@ -20,46 +21,56 @@ data class TransactionLogItem(
     val categoryName: String
 )
 
+data class FilterState(
+    val mode: FilterMode = FilterMode.ALL,
+    val month: Int,
+    val year: Int,
+    val customStartDate: Long? = null,
+    val customEndDate: Long? = null
+)
+
 class LogsViewModel(private val repository: FinanceRepository) : ViewModel() {
 
-    val activeFilterMode = MutableStateFlow(FilterMode.ALL)
-    
-    // For Monthly filter (Default to current month/year)
     private val currentCalendar = Calendar.getInstance()
-    val selectedMonth = MutableStateFlow(currentCalendar.get(Calendar.MONTH) + 1) // 1-based
-    val selectedYear = MutableStateFlow(currentCalendar.get(Calendar.YEAR))
+    
+    // Store everything in a single state class to prevent "combine" type erasure with too many params
+    val filterState = MutableStateFlow(
+        FilterState(
+            month = currentCalendar.get(Calendar.MONTH) + 1,
+            year = currentCalendar.get(Calendar.YEAR)
+        )
+    )
 
-    // For Custom Date filter
-    val customStartDate = MutableStateFlow<Long?>(null)
-    val customEndDate = MutableStateFlow<Long?>(null)
+    val activeFilterMode: StateFlow<FilterMode> = filterState.map { it.mode }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), filterState.value.mode)
+
+    val customStartDate: StateFlow<Long?> = filterState.map { it.customStartDate }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), filterState.value.customStartDate)
+
+    val customEndDate: StateFlow<Long?> = filterState.map { it.customEndDate }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), filterState.value.customEndDate)
 
     val transactions: StateFlow<List<TransactionLogItem>> = combine(
         repository.getAllTransactions(),
         repository.getAllCategories(),
-        activeFilterMode,
-        selectedMonth,
-        selectedYear,
-        customStartDate,
-        customEndDate
-    ) { txs, categories, mode, month, year, startDate, endDate ->
+        filterState
+    ) { txs, categories, state ->
         val categoryMap = categories.associateBy { it.categoryId }
         
-        val filteredTxs = when (mode) {
+        val filteredTxs = when (state.mode) {
             FilterMode.ALL -> txs
             FilterMode.MONTHLY -> {
                 txs.filter { tx ->
                     val cal = Calendar.getInstance().apply { timeInMillis = tx.transactionDate }
                     val txMonth = cal.get(Calendar.MONTH) + 1
                     val txYear = cal.get(Calendar.YEAR)
-                    txMonth == month && txYear == year
+                    txMonth == state.month && txYear == state.year
                 }
             }
             FilterMode.CUSTOM -> {
                 txs.filter { tx ->
-                    val afterStart = startDate?.let { tx.transactionDate >= it } ?: true
-                    // To include the whole end date, we normally add 24 hours to it conceptually if it's start-of-day.
-                    // But usually, the date picker returns start of day for both. Let's just do a basic <= comparison for now.
-                    val beforeEnd = endDate?.let { tx.transactionDate <= (it + 86400000L - 1) } ?: true
+                    val afterStart = state.customStartDate?.let { tx.transactionDate >= it } ?: true
+                    val beforeEnd = state.customEndDate?.let { tx.transactionDate <= (it + 86400000L - 1) } ?: true
                     afterStart && beforeEnd
                 }
             }
@@ -74,18 +85,14 @@ class LogsViewModel(private val repository: FinanceRepository) : ViewModel() {
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun setFilterMode(mode: FilterMode) {
-        activeFilterMode.value = mode
+        filterState.value = filterState.value.copy(mode = mode)
     }
 
     fun setMonthlyFilter(month: Int, year: Int) {
-        selectedMonth.value = month
-        selectedYear.value = year
-        setFilterMode(FilterMode.MONTHLY)
+        filterState.value = filterState.value.copy(mode = FilterMode.MONTHLY, month = month, year = year)
     }
 
     fun setCustomDateFilter(start: Long?, end: Long?) {
-        customStartDate.value = start
-        customEndDate.value = end
-        setFilterMode(FilterMode.CUSTOM)
+        filterState.value = filterState.value.copy(mode = FilterMode.CUSTOM, customStartDate = start, customEndDate = end)
     }
 }
