@@ -202,6 +202,7 @@ fun PortfolioScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssetItemCard(asset: AssetEntity, onDelete: () -> Unit) {
     val profitAmount = asset.getUnrealizedProfitAmount()
