@@ -32,7 +32,8 @@ fun DashboardScreen(
     onNavigateToCategories: () -> Unit,
     onNavigateToBudgets: () -> Unit,
     onNavigateToGoals: () -> Unit,
-    onNavigateToPortfolio: () -> Unit
+    onNavigateToPortfolio: () -> Unit,
+    onNavigateToLogs: () -> Unit
 ) {
     val goals by viewModel.goals.collectAsState()
     val summaries by viewModel.monthlySummary.collectAsState()
@@ -104,7 +105,7 @@ fun DashboardScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Logs", onClick = { /* Navigate to Transactions List later */ })
+                        DashboardActionButton(modifier = Modifier.weight(1f), title = "Logs", onClick = onNavigateToLogs)
                         DashboardActionButton(modifier = Modifier.weight(1f), title = "Portfolio", onClick = onNavigateToPortfolio)
                         DashboardActionButton(modifier = Modifier.weight(1f), title = "Config", onClick = onNavigateToSettings)
                     }
