@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 enum class AssetType {
-    STOCK, MUTUAL_FUND, SUKUK, CASH
+    STOCK, MUTUAL_FUND, SUKUK, CASH, GOLD
 }
 
 @Entity(tableName = "assets")
