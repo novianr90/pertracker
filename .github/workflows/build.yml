@@ -5,10 +5,19 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build Type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+        - debug
+        - release
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -33,10 +42,35 @@ jobs:
       run: gradle testDebugUnitTest
 
     - name: Build Debug APK
+      if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'debug')
       run: gradle assembleDebug
 
-    - name: Upload APK
+    - name: Upload Debug APK
+      if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'debug')
       uses: actions/upload-artifact@v4
       with:
         name: pertracker-debug-apk
         path: app/build/outputs/apk/debug/app-debug.apk
+
+    - name: Build Release APK
+      if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'release')
+      run: gradle assembleRelease
+
+    - name: Sign APK
+      if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'release')
+      uses: r0adkll/sign-android-release@v1
+      id: sign_app
+      with:
+        releaseDirectory: app/build/outputs/apk/release
+        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+        alias: ${{ secrets.KEY_ALIAS }}
+        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+        keyPassword: ${{ secrets.KEY_PASSWORD }}
+        buildToolsVersion: 34.0.0
+
+    - name: Upload Signed Release APK
+      if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'release')
+      uses: actions/upload-artifact@v4
+      with:
+        name: pertracker-release-signed-apk
+        path: ${{steps.sign_app.outputs.signedReleaseFile}}
