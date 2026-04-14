@@ -30,6 +30,7 @@ Contains everything related to data handling and external storage.
 
 ### 3. `ui/`
 Organized by feature. Each package contains the Compose UI (`Screen`) and its corresponding `ViewModel`.
+*   **`theme/`**: Centralized design system establishing modern Material 3 conventions (Tokens, Colors, Typography).
 *   **`dashboard/`**: Aggregates data, displays monthly budget usage, recent transactions, goal progress, and houses a 3x2 navigation grid.
 *   **`transaction/`**: Handles transaction entry and listing (supports dynamic Goal Funding dropdowns).
 *   **`budget/`**: Manages budget limits per category (Month/Year).
@@ -37,6 +38,12 @@ Organized by feature. Each package contains the Compose UI (`Screen`) and its co
 *   **`portfolio/`**: Investment & Wealth tracker showing Net Worth and Unrealized P/L per asset (with Syariah filters).
 *   **`settings/`**: Controls UI for User Preferences (API keys, Sync behavior, Outbox manual sync triggers).
 *   **`navigation/`**: Centralized compose navigation setup linking all screens.
+
+### 4. `.github/workflows/`
+*   **`build.yml`**: CI/CD pipeline configuration. 
+    *   **Pull Requests**: Runs safety checks and builds `debug` APKs.
+    *   **Main Branch**: Compiles, signs, and archives production-ready `release` APKs automatically using injected Secrets.
+    *   **Manual Trigger**: Supports `workflow_dispatch` for arbitrary run execution.
 
 ## 🔄 Core Business Logic & Patterns
 

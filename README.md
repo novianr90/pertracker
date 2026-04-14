@@ -16,13 +16,20 @@ An offline-first Android application designed to help you track personal finance
 ## 🛠️ Technology Stack
 
 * **Language**: Kotlin 
-* **UI Framework**: Jetpack Compose 
+* **UI Framework**: Jetpack Compose (Modernized with a unified, premium Material 3 design system, custom typography, and dynamic layouts)
 * **Architecture**: MVVM (Model-View-ViewModel) + Clean Architecture principles
 * **Dependency Injection**: Koin
 * **Local Database**: Jetpack Room (with Coroutines Flow & Daos)
 * **Preferences**: Jetpack DataStore
 * **Networking Layer**: Retrofit & OkHttp (for Webhook syncing)
-* **CI/CD**: GitHub Actions (Automatically compiles `assembleDebug` APKs upon push)
+* **CI/CD**: GitHub Actions (Builds `assembleDebug` for PRs, and automatically builds & signs `assembleRelease` APKs when merged to `main`. Supports manual `workflow_dispatch`)
+
+## 📖 Documentation & Guides
+
+To understand how to use the app or set up its features, please refer to the following guides:
+* [**How to Use PerTracker**](HOW_TO_USE.md): A complete walkthrough of the app's core features (Categories, Budgets, Goals, and Portfolios).
+* [**How to Setup Webhook Sync**](HOW_TO_SETUP.md): A step-by-step guide to configuring the automated Webhook sync using Google Sheets and Google Apps Script.
+* [**Codebase Context**](CODEBASE_CONTEXT.md): Technical overview of the application architecture and data flow for developers.
 
 ## 🚀 Getting Started
 
