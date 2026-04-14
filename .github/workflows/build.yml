@@ -56,6 +56,11 @@ jobs:
       if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'release')
       run: gradle assembleRelease
 
+    - name: Install old Build Tools for Sign Action
+      if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'release')
+      run: |
+        echo "y" | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "build-tools;29.0.3"
+
     - name: Sign APK
       if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'release')
       uses: r0adkll/sign-android-release@v1
@@ -66,11 +71,14 @@ jobs:
         alias: ${{ secrets.KEY_ALIAS }}
         keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
         keyPassword: ${{ secrets.KEY_PASSWORD }}
-        buildToolsVersion: 34.0.0
+
+    - name: Rename Signed APK
+      if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'release')
+      run: mv ${{steps.sign_app.outputs.signedReleaseFile}} app/build/outputs/apk/release/pertracker-release-signed.apk
 
     - name: Upload Signed Release APK
       if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'release')
       uses: actions/upload-artifact@v4
       with:
         name: pertracker-release-signed-apk
-        path: ${{steps.sign_app.outputs.signedReleaseFile}}
+        path: app/build/outputs/apk/release/pertracker-release-signed.apk
