@@ -72,9 +72,13 @@ jobs:
         keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
         keyPassword: ${{ secrets.KEY_PASSWORD }}
 
+    - name: Rename Signed APK
+      if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'release')
+      run: mv ${{steps.sign_app.outputs.signedReleaseFile}} app/build/outputs/apk/release/pertracker-release-signed.apk
+
     - name: Upload Signed Release APK
       if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_type == 'release')
       uses: actions/upload-artifact@v4
       with:
         name: pertracker-release-signed-apk
-        path: ${{steps.sign_app.outputs.signedReleaseFile}}
+        path: app/build/outputs/apk/release/pertracker-release-signed.apk
