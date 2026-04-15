@@ -1,5 +1,6 @@
 package com.example.pertracker.ui.portfolio
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,7 +32,8 @@ import java.util.Locale
 @Composable
 fun PortfolioScreen(
     viewModel: PortfolioViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToDetail: (Long) -> Unit
 ) {
     val assets by viewModel.assets.collectAsState()
     val totalNetWorth by viewModel.totalNetWorth.collectAsState()
@@ -126,7 +128,11 @@ fun PortfolioScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(assets, key = { it.id }) { asset ->
-                    AssetItemCard(asset, onDelete = { viewModel.deleteAsset(asset) })
+                    AssetItemCard(
+                        asset = asset,
+                        onClick = { onNavigateToDetail(asset.id) },
+                        onDelete = { viewModel.deleteAsset(asset) }
+                    )
                 }
                 item { Spacer(modifier = Modifier.height(80.dp)) }
             }
@@ -259,7 +265,7 @@ fun PortfolioScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AssetItemCard(asset: AssetEntity, onDelete: () -> Unit) {
+fun AssetItemCard(asset: AssetEntity, onClick: () -> Unit, onDelete: () -> Unit) {
     val profitAmount = asset.getUnrealizedProfitAmount()
     val profitPercentage = asset.getUnrealizedProfitPercentage()
     val isProfit = profitAmount >= 0
@@ -268,7 +274,10 @@ fun AssetItemCard(asset: AssetEntity, onDelete: () -> Unit) {
     val sign = if (isProfit) "+" else ""
 
     Card(
-        modifier = Modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(2.dp, RoundedCornerShape(16.dp))
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
