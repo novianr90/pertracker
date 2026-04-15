@@ -3,9 +3,11 @@ package com.example.pertracker.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.pertracker.ui.budget.BudgetScreen
 import com.example.pertracker.ui.budget.BudgetViewModel
 import com.example.pertracker.ui.category.CategoryScreen
@@ -27,6 +29,9 @@ sealed class Screen(val route: String) {
     object Goals : Screen("goals")
     object Portfolio : Screen("portfolio")
     object Logs : Screen("logs")
+    object AssetDetail : Screen("asset_detail/{assetId}") {
+        fun createRoute(assetId: Long) = "asset_detail/$assetId"
+    }
 }
 
 @Composable
@@ -104,6 +109,23 @@ fun AppNavigation(
             val viewModel: com.example.pertracker.ui.portfolio.PortfolioViewModel = koinViewModel()
             com.example.pertracker.ui.portfolio.PortfolioScreen(
                 viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToDetail = { assetId ->
+                    navController.navigate(Screen.AssetDetail.createRoute(assetId))
+                }
+            )
+        }
+
+        // --- Asset Detail ---
+        composable(
+            route = Screen.AssetDetail.route,
+            arguments = listOf(navArgument("assetId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val assetId = backStackEntry.arguments?.getLong("assetId") ?: return@composable
+            val viewModel: com.example.pertracker.ui.portfolio.PortfolioViewModel = koinViewModel()
+            com.example.pertracker.ui.portfolio.AssetDetailScreen(
+                viewModel = viewModel,
+                assetId = assetId,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

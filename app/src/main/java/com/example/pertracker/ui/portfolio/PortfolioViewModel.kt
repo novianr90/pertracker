@@ -34,6 +34,12 @@ class PortfolioViewModel(private val repository: FinanceRepository) : ViewModel(
         }
     }
 
+    fun updateAsset(asset: AssetEntity) {
+        viewModelScope.launch {
+            repository.updateAsset(asset)
+        }
+    }
+
     fun deleteAsset(asset: AssetEntity) {
         viewModelScope.launch {
             repository.deleteAsset(asset)
